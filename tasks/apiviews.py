@@ -4,7 +4,8 @@ from tasks.models import Task, STATUS_CHOICES, History
 from django.contrib.auth.models import User
 
 from rest_framework.serializers import ModelSerializer
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class UserSerializer(ModelSerializer):
     class Meta:
@@ -36,7 +37,7 @@ class HistoryFilter(FilterSet):
     new_status = ChoiceFilter(choices=STATUS_CHOICES)
     modified_date = DateFilter(lookup_expr="date", label="Modified date")
 
-class TaskViewSet(ModelViewSet):
+class TaskViewSet(LoginRequiredMixin, ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated, ]
@@ -49,7 +50,7 @@ class TaskViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-class HistoryViewSet(ModelViewSet):
+class HistoryViewSet(LoginRequiredMixin, ReadOnlyModelViewSet):
     serializer_class = HistorySerializer
     
     filter_backends = [DjangoFilterBackend, ]

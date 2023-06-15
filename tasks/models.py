@@ -26,9 +26,11 @@ class Task(models.Model):
         return self.title
     
     def save(self, *args, **kwargs):
-       
         if self.pk:
-            History.objects.create(old_status = Task.objects.get(id = self.pk).status, new_status = self.status, task_id = self.pk)
+            old_status = Task.objects.get(id = self.pk).status
+            new_status = self.status
+            if old_status != new_status:
+                History.objects.create(old_status = old_status, new_status = new_status, task_id = self.pk)
         super(Task, self).save(*args, **kwargs)
     
     
