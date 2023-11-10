@@ -51,10 +51,11 @@ class TaskViewSet(LoginRequiredMixin, ModelViewSet):
         serializer.save(user=self.request.user)
 
 class HistoryViewSet(LoginRequiredMixin, ReadOnlyModelViewSet):
+    queryset = History.objects.all()
     serializer_class = HistorySerializer
-    
+    permission_classes = [IsAuthenticated, ]
     filter_backends = [DjangoFilterBackend, ]
     filterset_class = HistoryFilter
 
     def get_queryset(self):
-        return History.objects.filter(task = self.kwargs['task_pk'])
+        return History.objects.filter(task = self.kwargs['task_pk'], task__user=self.request.user)
